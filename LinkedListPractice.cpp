@@ -1,20 +1,24 @@
 #include "LinkedLists2.h"
-
+Item *watch;
 int main() {
 	Header<Item> *h;
 	Item *i1 = new Item();
 	h = new Header<Item>(i1, i1, 1);
 	h->first->header = h;
-	h->print();
-	h->appendItem();
-	h->appendItem();
 	h->appendItem();
 	h->print();
 	h->printItems();
-	h->insertItem(2);
+	h->insertItem(0);
+	h->insertItem(h->size/2);
+	h->insertItem(h->size - 1);
+	h->insertItem(h->size);
 	h->print();
 	h->printItems();
-
+	h->deleteItem(1);
+	h->deleteItem(0);
+	h->deleteItem(h->size - 1);
+	h->print();
+	h->printItems();
 	return 0;
 }
 
@@ -24,15 +28,16 @@ Header<T>::Header(T * f, T * l, int s){
 	last = l;
 	size = s;
 }
-Item::Item(Item *n, Item *p, Header<Item> *h){
+Item::Item(Item *n, Item *p, Header<Item> *h, Data *d){
 	next = n;
 	prev = p;
 	header = h;
+	data = d;
 }
 
 template <class T>
 void Header<T>::appendItem(){
-	last->next = new T(NULL, last, last->header);
+	last->next = new T(NULL, last, last->header, new Data());
 	last->header->last = last->next;
 	last->header->size += 1;
 }
@@ -49,20 +54,57 @@ void Header<T>::printItems(){
 
 template <class T>
 void Header<T>::insertItem(int pos){
+	cout << "Inserting node at position " << pos << endl;
 	if(pos >= size){
 		cout << "List not long enough, consider appendItem() instead.\n";
 	}else{
 		T * iptr = first;
 		// Starting iptr at the first Item in the list move it right until it reaches
 		// the requested Item infront of the position
-		for(int i = 0; i < pos; i++){
+		int i = 0;
+		while(i < pos){
 			iptr = iptr->next;
+			i++;
 		}
 		// Add new Item andRe-order nexts and prevs
 		// Make old Items next point to newly inserted Item and set new Items next and prev
-		iptr->next = new T(iptr->next, iptr, iptr->header);
-		iptr = iptr->next;
-		iptr->next->prev = iptr;
+		iptr->prev = new T(iptr, iptr->prev, iptr->header, new Data());
+		if(pos == 0){
+			first = iptr->prev;
+		}
+		iptr = iptr->prev;
+		if(iptr->prev != NULL){
+			iptr->prev->next = iptr;
+		}
 		iptr->header->size += 1;
 	}
+}
+
+template <class T>
+void Header<T>::deleteItem(int pos){
+	cout << "Deleting node at position " << pos << endl;
+	T *iptr = first;
+	if(pos == 0){
+		first = first->next;
+		delete first->prev->data;
+		delete first->prev;
+	}else if(pos == size - 1){
+		last = last->prev;
+		delete last->next->data;
+		delete last->next;
+	}else{
+		// Loop so iptr points to the node we want to remove
+		int i = 0;
+		while(i < pos){
+			iptr = iptr->next;
+			i++;
+		}
+		// Linking together nodes on either side of node to be deleted
+
+		iptr->next->prev = iptr->prev;
+		iptr->prev->next = iptr->next;
+		delete iptr->data;
+		delete iptr;
+	}
+	first->header->size -= 1;
 }
