@@ -1,11 +1,13 @@
-#include "LinkedLists2.h"
+#include "LinkedListPractice.h"
 Item *watch;
 int main() {
 	Header<Item> *h;
 	Item *i1 = new Item();
 	h = new Header<Item>(i1, i1, 1);
 	h->first->header = h;
-	h->appendItem();
+	for(int i = 0; i < 10; i++){
+		h->appendItem();
+	}
 	h->print();
 	h->printItems();
 	h->insertItem(0);
@@ -19,7 +21,20 @@ int main() {
 	h->deleteItem(h->size - 1);
 	h->print();
 	h->printItems();
+	cout << "\n\nMake a copy\n\n";
+	Header<Item> *hcpy;
+	hcpy = new Header<Item>(*h);
+	h->print();
+	hcpy->print();
 	return 0;
+}
+
+
+Item::Item(Item *n, Item *p, Header<Item> *h, Data *d){
+	next = n;
+	prev = p;
+	header = h;
+	data = d;
 }
 
 template <class T>
@@ -28,11 +43,11 @@ Header<T>::Header(T * f, T * l, int s){
 	last = l;
 	size = s;
 }
-Item::Item(Item *n, Item *p, Header<Item> *h, Data *d){
-	next = n;
-	prev = p;
-	header = h;
-	data = d;
+template <class T>
+Header<T>::Header(const T& oldHeader){
+	first = oldHeader.first;
+	last = oldHeader.last;
+	size = oldHeader.size;
 }
 
 template <class T>
